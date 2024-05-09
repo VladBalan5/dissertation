@@ -14,13 +14,13 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   # Firebase core package for initialization
-  firebase_core: ^1.20.0
+  firebase_core: ^2.0.0
 
   # Firebase Authentication for user management
-  firebase_auth: ^3.3.7
+  firebase_auth: ^4.0.0
 
   # Firestore for real-time database management
-  cloud_firestore: ^3.1.5
+  cloud_firestore: ^4.0.0
 
   # BLoC library for state management
   flutter_bloc: ^8.0.1
