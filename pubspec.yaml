@@ -1,0 +1,47 @@
+name: chat_app
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  # Firebase core package for initialization
+  firebase_core: ^1.20.0
+
+  # Firebase Authentication for user management
+  firebase_auth: ^3.3.7
+
+  # Firestore for real-time database management
+  cloud_firestore: ^3.1.5
+
+  # BLoC library for state management
+  flutter_bloc: ^8.0.1
+
+  # Encryption library for secure communication
+  encrypt: ^5.0.1
+
+  # Equatable for easy comparison
+  equatable: ^2.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
