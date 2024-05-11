@@ -1,4 +1,5 @@
 import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/screens/messages_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -55,6 +56,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 title: Text(chat.otherUserName),
                 subtitle: Text(chat.lastMessage),
                 trailing: Text(DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MessageScreen(
+                        currentUserId: widget.currentUserId,
+                        chatId: "Afdjc6YxCp3iX1VogFFd",
+                        // messageId: "V91mHaXN12bbmYtIEP5o",
+                        // currentUserId: widget.currentUserId,  // Assuming this is available in the widget
+                        // chatId: chat.chatId, // Make sure 'chatId' is being fetched or constructed correctly
+                        // otherUserId: chat.otherUserId,
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
