@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
+      appBar: AppBar(title: Text("Register")),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -18,33 +19,24 @@ class LoginScreen extends StatelessWidget {
               controller: _emailController,
               decoration: InputDecoration(labelText: "Email Address"),
             ),
-            SizedBox(height: 8),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: "Username"),
+            ),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: "Password"),
               obscureText: true,
             ),
-            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // await FirebaseAuth.instance.signInWithEmailAndPassword(
-                //   email: _emailController.text.trim(),
-                //   password: _passwordController.text.trim(),
-                // );
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
                 Navigator.pushReplacementNamed(context, '/chat');
               },
-              child: Text("Login"),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // await FirebaseAuth.instance.signInWithEmailAndPassword(
-                //   email: _emailController.text.trim(),
-                //   password: _passwordController.text.trim(),
-                // );
-                Navigator.pushReplacementNamed(context, '/register');
-              },
-              child: Text("Create account"),
+              child: Text("Register"),
             ),
           ],
         ),
