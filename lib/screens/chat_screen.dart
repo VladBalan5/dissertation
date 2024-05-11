@@ -62,10 +62,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       builder: (context) => MessageScreen(
                         currentUserId: widget.currentUserId,
                         chatId: "Afdjc6YxCp3iX1VogFFd",
-                        // messageId: "V91mHaXN12bbmYtIEP5o",
-                        // currentUserId: widget.currentUserId,  // Assuming this is available in the widget
-                        // chatId: chat.chatId, // Make sure 'chatId' is being fetched or constructed correctly
-                        // otherUserId: chat.otherUserId,
                       ),
                     ),
                   );

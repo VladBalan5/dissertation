@@ -1,3 +1,5 @@
+import 'package:chat_app/screens/chat_screen.dart';
+import 'package:chat_app/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -27,22 +29,28 @@ class LoginScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // await FirebaseAuth.instance.signInWithEmailAndPassword(
-                //   email: _emailController.text.trim(),
-                //   password: _passwordController.text.trim(),
-                // );
-                Navigator.pushReplacementNamed(context, '/chat');
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(
+                      currentUserId: "U3FEwWy1JAWHzIpz8x1q",
+                    ),
+                  ),
+                );
               },
               child: Text("Login"),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // await FirebaseAuth.instance.signInWithEmailAndPassword(
-                //   email: _emailController.text.trim(),
-                //   password: _passwordController.text.trim(),
-                // );
-                Navigator.pushReplacementNamed(context, '/register');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => RegisterScreen(),
+                  ),
+                );
               },
               child: Text("Create account"),
             ),

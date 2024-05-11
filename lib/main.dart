@@ -19,15 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // home: LoginScreen(),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/chat': (context) => ChatScreen(currentUserId: "U3FEwWy1JAWHzIpz8x1q"),
-        // '/messages': (context) => ChatScreen(chatId: "1"),
-        '/settings': (context) => SettingsScreen(),
-      },
+      home: LoginScreen(),
     );
   }
 }
