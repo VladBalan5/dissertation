@@ -13,7 +13,10 @@ class FirestoreService {
         .toList());
   }
 
-  Future<void> sendMessage(String chatId, Message message) {
-    return _db.collection('chats').doc(chatId).collection('messages').add(message.toMap());
+  // Future<void> sendMessage(String chatId, Message message) {
+  //   return _db.collection('chats').doc(chatId).collection('messages').add(message.toMap());
+  // }
+  Future<void> sendMessage(String chatId, Message message) async {
+    // return _db.collection('chats').doc(chatId).collection('messages').add(message.toMap());
   }
 }
