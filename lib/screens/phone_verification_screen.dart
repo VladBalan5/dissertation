@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'chat_screen.dart';
 
@@ -24,6 +25,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   bool _isEditing = false;
   PhoneNumber phoneNumberwithProps = PhoneNumber(isoCode: 'RO');
   String _currentPhoneNumber = "";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -49,36 +51,44 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   Future<void> _verifyPhoneNumber() async {
-    final PhoneVerificationCompleted verificationCompleted =
-        (PhoneAuthCredential credential) async {
+    setState(() {
+      _isLoading = true;  // Start loading
+    });
+
+    final PhoneVerificationCompleted verificationCompleted = (PhoneAuthCredential credential) async {
       await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    currentUserId: widget.user.uid,
-                  )));
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;  // Stop loading after verification is completed
+      });
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(currentUserId: widget.user.uid)));
     };
-    final PhoneVerificationFailed verificationFailed =
-        (FirebaseAuthException e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Verification failed. Error: ${e.message}")),
-      );
+
+    final PhoneVerificationFailed verificationFailed = (FirebaseAuthException e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;  // Stop loading on failure
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Verification failed. Error: ${e.message}")));
     };
+
     final PhoneCodeSent codeSent = (String verificationId, int? resendToken) {
+      if (!mounted) return;
       setState(() {
+        _isLoading = false;  // Stop loading when code is sent
         _verificationId = verificationId;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Verification code sent to ${_currentPhoneNumber}")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Verification code sent to ${_currentPhoneNumber}")));
     };
-    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-        (String verificationId) {
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout = (String verificationId) {
+      if (!mounted) return;
       setState(() {
+        _isLoading = false;  // Ensure loading is stopped if auto retrieval timeout occurs
         _verificationId = verificationId;
       });
     };
+
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: _currentPhoneNumber,
       verificationCompleted: verificationCompleted,
@@ -104,11 +114,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                 builder: (context) => ChatScreen(currentUserId: user.uid)));
       } else {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Failed to sign in")));
+            .showSnackBar(SnackBar(content: Text("Failed to sign in! Try again.")));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to verify SMS code: $e")));
+          SnackBar(content: Text("Failed to sign in! Try again.")));
     }
   }
 
@@ -190,10 +200,24 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
               child: Text('Verify Code'),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _resendCode,
-              child: Text('Resend Code'),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _resendCode,  // Disable button while loading
+                  child: Text('Resend Code'),
+                ),
+                SizedBox(width: 10),
+                _isLoading ? SpinKitThreeBounce(
+                  color: Theme.of(context).primaryColor,
+                  size: 20.0,
+                ) : Container()  // Show spinner or an empty container if not loading
+              ],
             ),
+            // ElevatedButton(
+            //   onPressed: _resendCode,
+            //   child: Text('Resend Code'),
+            // ),
           ],
         ),
       ),
