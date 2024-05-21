@@ -56,7 +56,8 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     });
 
     final PhoneVerificationCompleted verificationCompleted = (PhoneAuthCredential credential) async {
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      // await FirebaseAuth.instance.signInWithCredential(credential);
+      await widget.user.linkWithCredential(credential);
       if (!mounted) return;
       setState(() {
         _isLoading = false;  // Stop loading after verification is completed
@@ -105,13 +106,14 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         verificationId: _verificationId,
         smsCode: _smsController.text.trim(),
       );
-      final User? user =
-          (await FirebaseAuth.instance.signInWithCredential(credential)).user;
-      if (user != null) {
+      // await FirebaseAuth.instance.signInWithCredential(credential);
+      await widget.user.linkWithCredential(credential);
+
+      if (widget.user != null) {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(currentUserId: user.uid)));
+                builder: (context) => ChatScreen(currentUserId: widget.user.uid)));
       } else {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Failed to sign in! Try again.")));
