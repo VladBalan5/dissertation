@@ -1,5 +1,6 @@
 import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/screens/messages_screen.dart';
+import 'package:chat_app/screens/users_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
       body: StreamBuilder<List<Chat>>(
         stream: chatStream,
         builder: (context, snapshot) {
+          print("lala3 ${widget.currentUserId}");
+          print("lala4 ${snapshot.data}");
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
@@ -70,6 +73,20 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => UserListScreen(
+                  currentUserId: widget.currentUserId
+              ),
+            ),
+          );
+        },
+        // child: Icon(Icons.person_add),
+        child: Icon(Icons.chat),
+        tooltip: 'Start Conversation',
       ),
     );
   }
