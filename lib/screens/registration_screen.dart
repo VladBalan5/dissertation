@@ -124,6 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       User? user = userCredential.user;
+      String defaultProfilePic = "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
         // Send verification email
         await user.sendEmailVerification();
@@ -131,6 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await _firestore.collection('users').doc(user.uid).set({
           'email': email,
           'phoneNumber': phoneNumber,
+          'profilePicUrl': defaultProfilePic,
           'userName': userName,
           'userId': user.uid,
         });
