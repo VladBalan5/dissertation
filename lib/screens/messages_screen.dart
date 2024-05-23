@@ -5,13 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageScreen extends StatefulWidget {
-  final String chatId;
-  final String currentUserId;
-  final String otherUserId;
   final UserModel currentUserData;
-  final Chat otherUserData;
+  final String otherUserId;
 
-  MessageScreen({Key? key, this.chatId = "", required this.currentUserId, required this.otherUserId, required this.currentUserData, required this.otherUserData})
+  MessageScreen({Key? key, required this.currentUserData, required this.otherUserId})
       : super(key: key);
 
   @override
@@ -31,7 +28,7 @@ class _MessageScreenState extends State<MessageScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('users')
-                  .doc(widget.currentUserId)
+                  .doc(widget.currentUserData.userId)
                   .collection('chats')
                   .doc(widget.otherUserId)
                   .collection('messages')
@@ -60,7 +57,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         snapshot.data!.docs[index].data()
                             as Map<String, dynamic>);
                     bool isMine =
-                        message.senderId == widget.currentUserId;
+                        message.senderId == widget.currentUserData.userId;
                     return ListTile(
                       title: Align(
                         alignment: isMine
@@ -109,12 +106,12 @@ class _MessageScreenState extends State<MessageScreen> {
     if (_messageController.text.isNotEmpty) {
       FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.currentUserId)
+          .doc(widget.currentUserData.userId)
           .collection('chats')
           .doc(widget.otherUserId)
           .collection('messages')
           .add({
-        'senderId': widget.currentUserId,
+        'senderId': widget.currentUserData.userId,
         'senderName': "YourUserName",
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
@@ -122,7 +119,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
       FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.currentUserId)
+          .doc(widget.currentUserData.userId)
           .collection('chats')
           .doc(widget.otherUserId)
           .set({
@@ -137,10 +134,10 @@ class _MessageScreenState extends State<MessageScreen> {
           .collection('users')
           .doc(widget.otherUserId)
           .collection('chats')
-          .doc(widget.currentUserId)
+          .doc(widget.currentUserData.userId)
           .collection('messages')
           .add({
-        'senderId': widget.currentUserId, // Replace with actual user ID
+        'senderId': widget.currentUserData.userId, // Replace with actual user ID
         'senderName': "YourUserName", // Replace with actual user name
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
@@ -150,12 +147,12 @@ class _MessageScreenState extends State<MessageScreen> {
           .collection('users')
           .doc(widget.otherUserId)
           .collection('chats')
-          .doc(widget.currentUserId)
+          .doc(widget.currentUserData.userId)
           .set({
         'lastMessage': _messageController.text,
         'lastMessageTime': FieldValue.serverTimestamp(),
         'otherUserAvatar': '', // You can set the current user's avatar here
-        'otherUserId': widget.currentUserId,
+        'otherUserId': widget.currentUserData.userId,
         'otherUserName': '', // You can set the current user's name here
       });
 

@@ -6,10 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 
 class UserListScreen extends StatefulWidget {
-  final String currentUserId;
   final UserModel currentUserData;
 
-  UserListScreen({required this.currentUserId, required this.currentUserData});
+  UserListScreen({required this.currentUserData});
 
   @override
   _UserListScreenState createState() => _UserListScreenState();
@@ -25,7 +24,7 @@ class _UserListScreenState extends State<UserListScreen> {
   void initState() {
     super.initState();
     _fetchUsers();
-    getCurrentUserInfo(widget.currentUserId);
+    getCurrentUserInfo(widget.currentUserData.userId);
   }
 
   Future<void> getCurrentUserInfo(String userId) async {
@@ -52,7 +51,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _fetchUsers() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('users').get();
     setState(() {
-      _users = snapshot.docs.where((doc) => doc.id != widget.currentUserId).toList();
+      _users = snapshot.docs.where((doc) => doc.id != widget.currentUserData.userId).toList();
       _filteredUsers = _users;
     });
   }
@@ -107,15 +106,14 @@ class _UserListScreenState extends State<UserListScreen> {
                   subtitle: Text(user['email']),
                   onTap: () {
                     _checkAndCreateChatCollection(user.id, user['userName'], user['profilePicUrl']);
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => MessageScreen(
-                    //       currentUserId: widget.currentUserId,
-                    //       chatId: _filteredUsers[index].id, // DE adaugat realul chatId in loc de asta mocked
-                    //       otherUserId: _filteredUsers[index].id,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => MessageScreen(
+                          currentUserData: widget.currentUserData,
+                          otherUserId: _filteredUsers[index].id,
+                        ),
+                      ),
+                    );
                   },
                 );
               },
@@ -129,7 +127,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _checkAndCreateChatCollection(String otherUserId, String otherUserName, String otherUserAvatar) async {
     DocumentReference chatDocRef = FirebaseFirestore.instance
         .collection('users')
-        .doc(widget.currentUserId)
+        .doc(widget.currentUserData.userId)
         .collection('chats')
         .doc(otherUserId);
 
@@ -150,13 +148,13 @@ class _UserListScreenState extends State<UserListScreen> {
         .collection('users')
         .doc(otherUserId)
         .collection('chats')
-        .doc(widget.currentUserId);
+        .doc(widget.currentUserData.userId);
 
     await otherUserChatDocRef.set({
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
       'otherUserAvatar': currentUserData!['profilePicUrl'], // You can set the current user's avatar here
-      'otherUserId': widget.currentUserId,
+      'otherUserId': widget.currentUserData.userId,
       'otherUserName': currentUserData!['userName'], // You can set the current user's name here
     });
   }

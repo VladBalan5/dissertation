@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
+
   ChatScreen({Key? key, required this.currentUserId}) : super(key: key);
 
   @override
@@ -27,8 +28,9 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection('chats')
         .orderBy('lastMessageTime', descending: true)
         .snapshots()
-        .map((snapshot) =>
-        snapshot.docs.map((doc) => Chat.fromFirestore(doc.data())).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Chat.fromFirestore(doc.data()))
+            .toList());
     getCurrentUserInfo(widget.currentUserId);
   }
 
@@ -41,14 +43,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (userDoc.exists) {
         setState(() {
-          currentUserData = UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
+          currentUserData =
+              UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
         });
       }
     } catch (e) {
       print('Error getting user info: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -79,16 +81,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 title: Text(chat.otherUserName),
                 subtitle: Text(chat.lastMessage),
-                trailing: Text(DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
+                trailing: Text(
+                    DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
                 onTap: () {
                   print("lala9 ${widget.currentUserId} ${chat.otherUserId}");
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => MessageScreen(
                         currentUserData: currentUserData!,
-                        otherUserData: chat,
-                        currentUserId: widget.currentUserId,
-                        // chatId: "Afdjc6YxCp3iX1VogFFd",
                         otherUserId: chat.otherUserId,
                       ),
                     ),
@@ -104,7 +104,6 @@ class _ChatScreenState extends State<ChatScreen> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => UserListScreen(
-                  currentUserId: widget.currentUserId,
                 currentUserData: currentUserData!,
               ),
             ),
