@@ -24,27 +24,6 @@ class _UserListScreenState extends State<UserListScreen> {
   void initState() {
     super.initState();
     _fetchUsers();
-    getCurrentUserInfo(widget.currentUserData.userId);
-  }
-
-  Future<void> getCurrentUserInfo(String userId) async {
-    try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      if (userDoc.exists) {
-        setState(() {
-          currentUserData = userDoc.data() as Map<String, dynamic>?;
-        });
-      } else {
-        return null;
-      }
-    } catch (e) {
-      print('Error getting user info: $e');
-      return null;
-    }
   }
 
 
@@ -110,7 +89,9 @@ class _UserListScreenState extends State<UserListScreen> {
                       MaterialPageRoute(
                         builder: (context) => MessageScreen(
                           currentUserData: widget.currentUserData,
-                          otherUserId: _filteredUsers[index].id,
+                          otherUserId: user.id, // sa verific daca la pot face ca celelalte
+                          otherUserName: user['userName'],
+                          otherUserProfilePicUrl: user['profilePicUrl'],
                         ),
                       ),
                     );

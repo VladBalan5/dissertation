@@ -7,8 +7,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MessageScreen extends StatefulWidget {
   final UserModel currentUserData;
   final String otherUserId;
+  final String otherUserName;
+  final String otherUserProfilePicUrl;
 
-  MessageScreen({Key? key, required this.currentUserData, required this.otherUserId})
+  MessageScreen(
+      {Key? key,
+      required this.currentUserData,
+      required this.otherUserId,
+      required this.otherUserName,
+      required this.otherUserProfilePicUrl,})
       : super(key: key);
 
   @override
@@ -112,7 +119,7 @@ class _MessageScreenState extends State<MessageScreen> {
           .collection('messages')
           .add({
         'senderId': widget.currentUserData.userId,
-        'senderName': "YourUserName",
+        'senderName': widget.currentUserData.userName,
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -125,9 +132,9 @@ class _MessageScreenState extends State<MessageScreen> {
           .set({
         'lastMessage': _messageController.text,
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserAvatar': widget.otherUserProfilePicUrl, // You can set the current user's avatar here
         'otherUserId': widget.otherUserId,
-        'otherUserName': '', // You can set the current user's name here
+        'otherUserName': widget.otherUserName, // You can set the current user's name here
       });
 
       FirebaseFirestore.instance
@@ -138,7 +145,7 @@ class _MessageScreenState extends State<MessageScreen> {
           .collection('messages')
           .add({
         'senderId': widget.currentUserData.userId, // Replace with actual user ID
-        'senderName': "YourUserName", // Replace with actual user name
+        'senderName': widget.currentUserData.userName, // Replace with actual user name
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -151,9 +158,9 @@ class _MessageScreenState extends State<MessageScreen> {
           .set({
         'lastMessage': _messageController.text,
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserAvatar': widget.otherUserProfilePicUrl, // You can set the current user's avatar here
         'otherUserId': widget.currentUserData.userId,
-        'otherUserName': '', // You can set the current user's name here
+        'otherUserName': widget.otherUserName, // You can set the current user's name here
       });
 
       _messageController.clear();

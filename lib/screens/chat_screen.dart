@@ -90,6 +90,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       builder: (context) => MessageScreen(
                         currentUserData: currentUserData!,
                         otherUserId: chat.otherUserId,
+                        otherUserName: chat.otherUserName,
+                        otherUserProfilePicUrl: chat.otherUserAvatar,
                       ),
                     ),
                   );
