@@ -15,6 +15,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late Stream<List<Chat>> chatStream;
+  Map<String, dynamic>? currentUserData;
 
   @override
   void initState() {
@@ -27,6 +28,27 @@ class _ChatScreenState extends State<ChatScreen> {
         .snapshots()
         .map((snapshot) =>
         snapshot.docs.map((doc) => Chat.fromFirestore(doc.data())).toList());
+    getCurrentUserInfo(widget.currentUserId);
+  }
+
+  Future<void> getCurrentUserInfo(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          currentUserData = userDoc.data() as Map<String, dynamic>?;
+        });
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting user info: $e');
+      return null;
+    }
   }
 
   @override
@@ -60,9 +82,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 subtitle: Text(chat.lastMessage),
                 trailing: Text(DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
                 onTap: () {
+                  print("lala9 ${widget.currentUserId} ${chat.otherUserId}");
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => MessageScreen(
+                        currentUserData: currentUserData,
+                        otherUserData: chat,
                         currentUserId: widget.currentUserId,
                         // chatId: "Afdjc6YxCp3iX1VogFFd",
                         otherUserId: chat.otherUserId,

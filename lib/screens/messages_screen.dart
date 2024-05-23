@@ -1,3 +1,4 @@
+import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,8 +7,10 @@ class MessageScreen extends StatefulWidget {
   final String chatId;
   final String currentUserId;
   final String otherUserId;
+  final Map<String, dynamic>? currentUserData;
+  final Chat otherUserData;
 
-  MessageScreen({Key? key, this.chatId = "", required this.currentUserId, required this.otherUserId})
+  MessageScreen({Key? key, this.chatId = "", required this.currentUserId, required this.otherUserId, required this.currentUserData, required this.otherUserData})
       : super(key: key);
 
   @override

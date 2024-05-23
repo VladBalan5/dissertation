@@ -16,12 +16,35 @@ class _UserListScreenState extends State<UserListScreen> {
   TextEditingController _searchController = TextEditingController();
   List<DocumentSnapshot> _users = [];
   List<DocumentSnapshot> _filteredUsers = [];
+  Map<String, dynamic>? currentUserData;
 
   @override
   void initState() {
     super.initState();
     _fetchUsers();
+    getCurrentUserInfo(widget.currentUserId);
   }
+
+  Future<void> getCurrentUserInfo(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          currentUserData = userDoc.data() as Map<String, dynamic>?;
+        });
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting user info: $e');
+      return null;
+    }
+  }
+
 
   Future<void> _fetchUsers() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('users').get();
@@ -70,6 +93,9 @@ class _UserListScreenState extends State<UserListScreen> {
               itemCount: _filteredUsers.length,
               itemBuilder: (context, index) {
                 DocumentSnapshot user = _filteredUsers[index];
+                print("lala11 ${user.id}");
+                print("lala12 ${_filteredUsers[index].id}");
+                print("lala13 ${user['userName']}");
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(user['profilePicUrl']),
@@ -77,7 +103,7 @@ class _UserListScreenState extends State<UserListScreen> {
                   title: Text(user['userName']),
                   subtitle: Text(user['email']),
                   onTap: () {
-                    _checkAndCreateChatCollection(_filteredUsers[index].id);
+                    _checkAndCreateChatCollection(user.id, user['userName'], user['profilePicUrl']);
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => MessageScreen(
@@ -97,7 +123,7 @@ class _UserListScreenState extends State<UserListScreen> {
     );
   }
 
-  Future<void> _checkAndCreateChatCollection(String otherUserId) async {
+  Future<void> _checkAndCreateChatCollection(String otherUserId, String otherUserName, String otherUserAvatar) async {
     DocumentReference chatDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.currentUserId)
@@ -110,9 +136,9 @@ class _UserListScreenState extends State<UserListScreen> {
       await chatDocRef.set({
         'lastMessage': '',
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserAvatar': otherUserAvatar, // You can set the current user's avatar here
         'otherUserId': otherUserId,
-        'otherUserName': '', // You can set the current user's name here
+        'otherUserName': otherUserName, // You can set the current user's name here
       });
     }
 
@@ -126,9 +152,9 @@ class _UserListScreenState extends State<UserListScreen> {
     await otherUserChatDocRef.set({
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
-      'otherUserAvatar': '', // You can set the current user's avatar here
+      'otherUserAvatar': currentUserData!['profilePicUrl'], // You can set the current user's avatar here
       'otherUserId': widget.currentUserId,
-      'otherUserName': '', // You can set the current user's name here
+      'otherUserName': currentUserData!['userName'], // You can set the current user's name here
     });
   }
 }
