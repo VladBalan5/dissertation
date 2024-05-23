@@ -1,4 +1,5 @@
 import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/models/user.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 import 'package:chat_app/screens/users_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late Stream<List<Chat>> chatStream;
-  Map<String, dynamic>? currentUserData;
+  UserModel? currentUserData;
 
   @override
   void initState() {
@@ -40,16 +41,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (userDoc.exists) {
         setState(() {
-          currentUserData = userDoc.data() as Map<String, dynamic>?;
+          currentUserData = UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
         });
-      } else {
-        return null;
       }
     } catch (e) {
       print('Error getting user info: $e');
-      return null;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => MessageScreen(
-                        currentUserData: currentUserData,
+                        currentUserData: currentUserData!,
                         otherUserData: chat,
                         currentUserId: widget.currentUserId,
                         // chatId: "Afdjc6YxCp3iX1VogFFd",
@@ -105,7 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => UserListScreen(
-                  currentUserId: widget.currentUserId
+                  currentUserId: widget.currentUserId,
+                currentUserData: currentUserData!,
               ),
             ),
           );

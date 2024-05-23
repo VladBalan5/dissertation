@@ -1,3 +1,5 @@
+import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/models/user.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,8 +7,9 @@ import 'package:chat_app/screens/messages_screen.dart';
 
 class UserListScreen extends StatefulWidget {
   final String currentUserId;
+  final UserModel currentUserData;
 
-  UserListScreen({required this.currentUserId});
+  UserListScreen({required this.currentUserId, required this.currentUserData});
 
   @override
   _UserListScreenState createState() => _UserListScreenState();
@@ -104,15 +107,15 @@ class _UserListScreenState extends State<UserListScreen> {
                   subtitle: Text(user['email']),
                   onTap: () {
                     _checkAndCreateChatCollection(user.id, user['userName'], user['profilePicUrl']);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => MessageScreen(
-                          currentUserId: widget.currentUserId,
-                          chatId: _filteredUsers[index].id, // DE adaugat realul chatId in loc de asta mocked
-                          otherUserId: _filteredUsers[index].id,
-                        ),
-                      ),
-                    );
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder: (context) => MessageScreen(
+                    //       currentUserId: widget.currentUserId,
+                    //       chatId: _filteredUsers[index].id, // DE adaugat realul chatId in loc de asta mocked
+                    //       otherUserId: _filteredUsers[index].id,
+                    //     ),
+                    //   ),
+                    // );
                   },
                 );
               },
