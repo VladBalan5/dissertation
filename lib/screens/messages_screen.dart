@@ -29,7 +29,7 @@ class _MessageScreenState extends State<MessageScreen> {
                   .collection('users')
                   .doc(widget.currentUserId)
                   .collection('chats')
-                  .doc(widget.chatId)
+                  .doc(widget.otherUserId)
                   .collection('messages')
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
@@ -56,7 +56,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         snapshot.data!.docs[index].data()
                             as Map<String, dynamic>);
                     bool isMine =
-                        message.senderId == "1"; // Replace with actual user ID
+                        message.senderId == widget.currentUserId;
                     return ListTile(
                       title: Align(
                         alignment: isMine
@@ -110,8 +110,8 @@ class _MessageScreenState extends State<MessageScreen> {
           .doc(widget.otherUserId)
           .collection('messages')
           .add({
-        'senderId': widget.currentUserId, // Replace with actual user ID
-        'senderName': "YourUserName", // Replace with actual user name
+        'senderId': widget.currentUserId,
+        'senderName': "YourUserName",
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
       });
