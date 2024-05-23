@@ -27,7 +27,18 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chat")),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(widget.otherUserProfilePicUrl),
+            ),
+            SizedBox(width: 10),
+            Text(widget.otherUserName),
+          ],
+        ),
+      ),
+      // appBar: AppBar(title: Text("Chat")),
       body: Column(
         children: [
           Expanded(
