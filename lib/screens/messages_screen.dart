@@ -70,6 +70,12 @@ class _MessageScreenState extends State<MessageScreen> {
                   reverse: true,
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
+                    var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                    // Ensure timestamp is not null
+                    Timestamp? timestamp = data['timestamp'] as Timestamp?;
+                    if (timestamp == null) {
+                      return Container(); // or a placeholder widget
+                    }
                     Message message = Message.fromFirestore(
                         snapshot.data!.docs[index].data()
                             as Map<String, dynamic>);
