@@ -56,8 +56,17 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     });
 
     final PhoneVerificationCompleted verificationCompleted = (PhoneAuthCredential credential) async {
-      // await FirebaseAuth.instance.signInWithCredential(credential);
-      await widget.user.linkWithCredential(credential);
+      try {
+        await widget.user.linkWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        print(e);
+        if (e.code == 'provider-already-linked') {
+          await widget.user.reauthenticateWithCredential(credential);
+        } else {
+          throw e;
+        }
+      }
+
       if (!mounted) return;
       setState(() {
         _isLoading = false;  // Stop loading after verification is completed
@@ -106,8 +115,15 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         verificationId: _verificationId,
         smsCode: _smsController.text.trim(),
       );
-      // await FirebaseAuth.instance.signInWithCredential(credential);
-      await widget.user.linkWithCredential(credential);
+      try {
+        await widget.user.linkWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'provider-already-linked') {
+          await widget.user.reauthenticateWithCredential(credential);
+        } else {
+          throw e;
+        }
+      }
 
       if (widget.user != null) {
         Navigator.pushReplacement(
@@ -115,10 +131,12 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
             MaterialPageRoute(
                 builder: (context) => ChatScreen(currentUserId: widget.user.uid)));
       } else {
+        print("lala6");
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Failed to sign in! Try again.")));
       }
     } catch (e) {
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to sign in! Try again.")));
     }

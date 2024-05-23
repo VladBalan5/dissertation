@@ -64,7 +64,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     MaterialPageRoute(
                       builder: (context) => MessageScreen(
                         currentUserId: widget.currentUserId,
-                        chatId: "Afdjc6YxCp3iX1VogFFd",
+                        // chatId: "Afdjc6YxCp3iX1VogFFd",
+                        otherUserId: chat.otherUserId,
                       ),
                     ),
                   );

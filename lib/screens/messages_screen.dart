@@ -5,8 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MessageScreen extends StatefulWidget {
   final String chatId;
   final String currentUserId;
+  final String otherUserId;
 
-  MessageScreen({Key? key, required this.chatId, required this.currentUserId})
+  MessageScreen({Key? key, this.chatId = "", required this.currentUserId, required this.otherUserId})
       : super(key: key);
 
   @override
@@ -106,14 +107,54 @@ class _MessageScreenState extends State<MessageScreen> {
           .collection('users')
           .doc(widget.currentUserId)
           .collection('chats')
-          .doc(widget.chatId)
+          .doc(widget.otherUserId)
           .collection('messages')
           .add({
-        'senderId': "1", // Replace with actual user ID
+        'senderId': widget.currentUserId, // Replace with actual user ID
         'senderName': "YourUserName", // Replace with actual user name
         'text': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
       });
+
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.currentUserId)
+          .collection('chats')
+          .doc(widget.otherUserId)
+          .set({
+        'lastMessage': _messageController.text,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserId': widget.otherUserId,
+        'otherUserName': '', // You can set the current user's name here
+      });
+
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.otherUserId)
+          .collection('chats')
+          .doc(widget.currentUserId)
+          .collection('messages')
+          .add({
+        'senderId': widget.currentUserId, // Replace with actual user ID
+        'senderName': "YourUserName", // Replace with actual user name
+        'text': _messageController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.otherUserId)
+          .collection('chats')
+          .doc(widget.currentUserId)
+          .set({
+        'lastMessage': _messageController.text,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserId': widget.currentUserId,
+        'otherUserName': '', // You can set the current user's name here
+      });
+
       _messageController.clear();
     }
   }

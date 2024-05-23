@@ -77,11 +77,13 @@ class _UserListScreenState extends State<UserListScreen> {
                   title: Text(user['userName']),
                   subtitle: Text(user['email']),
                   onTap: () {
+                    _checkAndCreateChatCollection(_filteredUsers[index].id);
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => MessageScreen(
                           currentUserId: widget.currentUserId,
-                          chatId: "Afdjc6YxCp3iX1VogFFd", // DE adaugat realul chatId in loc de asta mocked
+                          chatId: _filteredUsers[index].id, // DE adaugat realul chatId in loc de asta mocked
+                          otherUserId: _filteredUsers[index].id,
                         ),
                       ),
                     );
@@ -93,5 +95,40 @@ class _UserListScreenState extends State<UserListScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _checkAndCreateChatCollection(String otherUserId) async {
+    DocumentReference chatDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.currentUserId)
+        .collection('chats')
+        .doc(otherUserId);
+
+    DocumentSnapshot chatDoc = await chatDocRef.get();
+    print("lala9 ${chatDoc.exists}");
+    if (!chatDoc.exists) {
+      await chatDocRef.set({
+        'lastMessage': '',
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'otherUserAvatar': '', // You can set the current user's avatar here
+        'otherUserId': otherUserId,
+        'otherUserName': '', // You can set the current user's name here
+      });
+    }
+
+    // Create a corresponding chat document in the other user's chats collection
+    DocumentReference otherUserChatDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(otherUserId)
+        .collection('chats')
+        .doc(widget.currentUserId);
+
+    await otherUserChatDocRef.set({
+      'lastMessage': '',
+      'lastMessageTime': FieldValue.serverTimestamp(),
+      'otherUserAvatar': '', // You can set the current user's avatar here
+      'otherUserId': widget.currentUserId,
+      'otherUserName': '', // You can set the current user's name here
+    });
   }
 }
