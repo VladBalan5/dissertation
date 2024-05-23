@@ -1,9 +1,7 @@
-import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chat_app/screens/messages_screen.dart';
 
 class UserListScreen extends StatefulWidget {
   final UserModel currentUserData;
@@ -18,7 +16,6 @@ class _UserListScreenState extends State<UserListScreen> {
   TextEditingController _searchController = TextEditingController();
   List<DocumentSnapshot> _users = [];
   List<DocumentSnapshot> _filteredUsers = [];
-  Map<String, dynamic>? currentUserData;
 
   @override
   void initState() {
@@ -89,7 +86,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       MaterialPageRoute(
                         builder: (context) => MessageScreen(
                           currentUserData: widget.currentUserData,
-                          otherUserId: user.id, // sa verific daca la pot face ca celelalte
+                          otherUserId: user['userId'], // sa verific daca la pot face ca celelalte
                           otherUserName: user['userName'],
                           otherUserProfilePicUrl: user['profilePicUrl'],
                         ),
@@ -134,9 +131,9 @@ class _UserListScreenState extends State<UserListScreen> {
     await otherUserChatDocRef.set({
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
-      'otherUserAvatar': currentUserData!['profilePicUrl'], // You can set the current user's avatar here
+      'otherUserAvatar': widget.currentUserData.profilePicUrl, // You can set the current user's avatar here
       'otherUserId': widget.currentUserData.userId,
-      'otherUserName': currentUserData!['userName'], // You can set the current user's name here
+      'otherUserName': widget.currentUserData.userName, // You can set the current user's name here
     });
   }
 }

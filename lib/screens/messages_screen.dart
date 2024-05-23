@@ -1,4 +1,3 @@
-import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:flutter/material.dart';
@@ -158,9 +157,9 @@ class _MessageScreenState extends State<MessageScreen> {
           .set({
         'lastMessage': _messageController.text,
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'otherUserAvatar': widget.otherUserProfilePicUrl, // You can set the current user's avatar here
+        'otherUserAvatar': widget.currentUserData.profilePicUrl, // You can set the current user's avatar here
         'otherUserId': widget.currentUserData.userId,
-        'otherUserName': widget.otherUserName, // You can set the current user's name here
+        'otherUserName': widget.currentUserData.userName, // You can set the current user's name here
       });
 
       _messageController.clear();
