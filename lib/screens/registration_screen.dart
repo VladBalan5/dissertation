@@ -1,3 +1,4 @@
+import 'package:chat_app/utils/rsa_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -123,6 +124,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: password,
       );
 
+      // Generate RSA key pair
+      var rsaKeys = await RsaKeyHelper.generateRSAKeyPair();
+      String publicKey = rsaKeys['publicKey']!;
+      String privateKey = rsaKeys['privateKey']!;
+
       User? user = userCredential.user;
       String defaultProfilePic = "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
@@ -135,6 +141,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'profilePicUrl': defaultProfilePic,
           'userName': userName,
           'userId': user.uid,
+          'publicKey': publicKey,
+          'privateKey': privateKey,
         });
         await showVerificationEmailSentDialog(context, user);
       }
