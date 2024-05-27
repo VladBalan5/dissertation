@@ -6,7 +6,6 @@ import 'package:chat_app/utils/rsa_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:encrypt/encrypt.dart' as aesEncrypt;
 
 class MessageScreen extends StatefulWidget {
   final UserModel currentUserData;
@@ -29,47 +28,41 @@ class MessageScreen extends StatefulWidget {
 class _MessageScreenState extends State<MessageScreen> {
   final TextEditingController _messageController = TextEditingController();
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
-  String currentUserPrivateKeyRSA = '';
-  String currentUserPublicKeyRSA = '';
-  late aesEncrypt.Encrypter aesEncrypter;
-  late aesEncrypt.IV aesIv;
+  String currentUserPrivateKey = '';
+  String currentUserPublicKey = '';
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentUserKeysRSA();
-    _initializeEncryptionAes();
+    _loadCurrentUserKeys();
   }
 
-  void _initializeEncryptionAes() {
-    final key = aesEncrypt.Key.fromBase64(widget.currentUserData.aesKey);
-    aesIv = aesEncrypt.IV.fromBase64(widget.currentUserData.aesIV);
-    aesEncrypter = aesEncrypt.Encrypter(aesEncrypt.AES(key));
-  }
-
-  Future<void> _loadCurrentUserKeysRSA() async {
-    String? privateKeyRSA = await secureStorage.read(key:'user-${widget.currentUserData.userId}-privateKeyRSA');
+  Future<void> _loadCurrentUserKeys() async {
+    DocumentSnapshot currentUserSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.currentUserData.userId)
+        .get();
+    String? privateKey = await secureStorage.read(key:'user-${widget.currentUserData.userId}-privateKey');
     setState(() {
-      currentUserPrivateKeyRSA = privateKeyRSA ?? '';
-      currentUserPublicKeyRSA = widget.currentUserData.publicKeyRSA;
+      currentUserPrivateKey = privateKey ?? '';
+      currentUserPublicKey = currentUserSnapshot['publicKey'];
     });
   }
 
   Future<void> _sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       String messageText = _messageController.text;
-      String aesEncryptedText = aesEncrypter.encrypt(messageText, iv: aesIv).base64;
 
       // Get other user's public key
       DocumentSnapshot otherUserSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.otherUserId)
           .get();
-      String otherUserPublicKeyRSA = otherUserSnapshot['publicKeyRSA'];
+      String otherUserPublicKey = otherUserSnapshot['publicKey'];
 
       // Encrypt the message with both public keys
-      String encryptedMessageForOtherUser = await RsaKeyHelper.encryptWithPublicKey(aesEncryptedText, otherUserPublicKeyRSA);
-      String encryptedMessageForCurrentUser = await RsaKeyHelper.encryptWithPublicKey(aesEncryptedText, currentUserPublicKeyRSA);
+      String encryptedMessageForOtherUser = await RsaKeyHelper.encryptWithPublicKey(messageText, otherUserPublicKey);
+      String encryptedMessageForCurrentUser = await RsaKeyHelper.encryptWithPublicKey(messageText, widget.currentUserData.publicKey);
 
       // Store encrypted message for both users
       FirebaseFirestore.instance
@@ -128,11 +121,11 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  Future<String> _decryptMessageFromRSA(String encryptedMessage) async {
+  Future<String> _decryptMessage(String encryptedMessage) async {
     try {
-      if (currentUserPrivateKeyRSA.isNotEmpty) {
+      if (currentUserPrivateKey.isNotEmpty) {
         print('Attempting to decrypt message: $encryptedMessage');
-        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, currentUserPrivateKeyRSA);
+        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, currentUserPrivateKey);
       } else {
         throw Exception('Current user private key is empty.');
       }
@@ -194,7 +187,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     Message message = Message.fromFirestore(data);
                     bool isMine = message.senderId == widget.currentUserData.userId;
                     return FutureBuilder<String>(
-                      future: _decryptMessageFromRSA(message.text),
+                      future: _decryptMessage(message.text),
                       builder: (context, decryptedSnapshot) {
                         if (decryptedSnapshot.connectionState == ConnectionState.waiting) {
                           return ListTile(
@@ -225,7 +218,6 @@ class _MessageScreenState extends State<MessageScreen> {
                             ),
                           );
                         } else {
-                          String decryptedTextFromAES = aesEncrypter.decrypt64(decryptedSnapshot.data ?? '', iv: aesIv);
                           return ListTile(
                             title: Align(
                               alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
@@ -235,7 +227,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                   color: isMine ? Colors.blue[200] : Colors.grey[300],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(decryptedTextFromAES),
+                                child: Text(decryptedSnapshot.data ?? 'Error decrypting message'),
                               ),
                             ),
                           );
