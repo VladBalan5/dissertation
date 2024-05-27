@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
+import 'package:encrypt/encrypt.dart' as aesEncrypt;
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -20,11 +21,19 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late Stream<List<Chat>> chatStream;
   UserModel? currentUserData;
+  String currentUserPrivateKeyRSA = '';
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  late aesEncrypt.Encrypter aesEncrypter;
+  late aesEncrypt.IV aesIv;
 
   @override
   void initState() {
     super.initState();
+    _initializeChatStream();
+    _getCurrentUserInfo();
+  }
+
+  void _initializeChatStream () {
     chatStream = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.currentUserId)
@@ -34,20 +43,20 @@ class _ChatScreenState extends State<ChatScreen> {
         .map((snapshot) => snapshot.docs
         .map((doc) => Chat.fromFirestore(doc.data()))
         .toList());
-    getCurrentUserInfo(widget.currentUserId);
   }
 
-  Future<void> getCurrentUserInfo(String userId) async {
+  Future<void> _getCurrentUserInfo() async {
+    String? privateKeyRSA = await secureStorage.read(key:'user-${widget.currentUserId}-privateKeyRSA');
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(userId)
+          .doc(widget.currentUserId)
           .get();
-
       if (userDoc.exists) {
         setState(() {
+          currentUserPrivateKeyRSA = privateKeyRSA ?? '';
           currentUserData =
-              UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
+              UserModel.fromMap(userDoc.data() as Map<String, dynamic>, widget.currentUserId);
         });
       }
     } catch (e) {
@@ -55,13 +64,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<String> _decryptMessage(String encryptedMessage) async {
+  void _initializeEncryptionAes() {
+    final key = aesEncrypt.Key.fromBase64(currentUserData!.aesKey);
+    aesIv = aesEncrypt.IV.fromBase64(currentUserData!.aesIV);
+    aesEncrypter = aesEncrypt.Encrypter(aesEncrypt.AES(key));
+  }
+
+  Future<String> _decryptMessageFromRSA(String encryptedMessage) async {
     try {
-      String? privateKey = await secureStorage.read(key: 'user-${widget.currentUserId}-privateKey');
-      if (privateKey != null) {
-        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, privateKey);
+      if (currentUserPrivateKeyRSA.isNotEmpty) {
+        print('Attempting to decrypt message: $encryptedMessage');
+        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, currentUserPrivateKeyRSA);
       } else {
-        throw Exception('Private key not found');
+        throw Exception('Current user private key is empty.');
       }
     } catch (e) {
       print('Decryption error: $e');
@@ -93,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
             itemBuilder: (context, index) {
               final chat = snapshot.data![index];
               return FutureBuilder<String>(
-                future: _decryptMessage(chat.lastMessage),
+                future: _decryptMessageFromRSA(chat.lastMessage),
                 builder: (context, decryptedSnapshot) {
                   if (decryptedSnapshot.connectionState == ConnectionState.waiting) {
                     return ListTile(
@@ -104,12 +119,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       title: Text('Error decrypting message'),
                     );
                   } else {
+                    _initializeEncryptionAes();
+                    String decryptedTextFromAES = aesEncrypter.decrypt64(decryptedSnapshot.data ?? '', iv: aesIv);
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundImage: NetworkImage(chat.otherUserAvatar),
                       ),
                       title: Text(chat.otherUserName),
-                      subtitle: Text(decryptedSnapshot.data ?? 'Error decrypting message'),
+                      subtitle: Text(decryptedTextFromAES),
                       trailing: Text(
                           DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
                       onTap: () {

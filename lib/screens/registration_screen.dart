@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:chat_app/screens/login_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:encrypt/encrypt.dart' as aesEncrypt;
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -129,14 +130,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Generate RSA key pair
       var rsaKeys = await RsaKeyHelper.generateRSAKeyPair();
-      String publicKey = rsaKeys['publicKey']!;
-      String privateKey = rsaKeys['privateKey']!;
+      String publicKeyRSA = rsaKeys['publicKey']!;
+      String privateKeyRSA = rsaKeys['privateKey']!;
+
+      final aesKey = aesEncrypt.Key.fromSecureRandom(32);
+      final aesIv = aesEncrypt.IV.fromSecureRandom(16);
 
       User? user = userCredential.user;
       String defaultProfilePic = "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
         // Store the private key in secure storage
-        await secureStorage.write(key:'user-${user.uid}-privateKey', value: privateKey);
+        await secureStorage.write(key:'user-${user.uid}-privateKeyRSA', value: privateKeyRSA);
         // Send verification email
         await user.sendEmailVerification();
         // Save user data in Firestore
@@ -146,8 +150,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'profilePicUrl': defaultProfilePic,
           'userName': userName,
           'userId': user.uid,
-          'publicKey': publicKey,
-          // Do not store the private key in Firestore
+          'publicKeyRSA': publicKeyRSA,
+          'aesKey': aesKey.base64,
+          'aesIV': aesIv.base64,
         });
         await showVerificationEmailSentDialog(context, user);
       }

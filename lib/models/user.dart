@@ -6,8 +6,8 @@ class UserModel {
   final String userName;
   final String aesKey;
   final String aesIV;
-  final String publicKey;
-  final String privateKey;
+  final String publicKeyRSA;
+  final String privateKeyRSA;
 
   UserModel({
     required this.email,
@@ -17,8 +17,8 @@ class UserModel {
     required this.userName,
     required this.aesKey,
     required this.aesIV,
-    required this.publicKey,
-    required this.privateKey,
+    required this.publicKeyRSA,
+    required this.privateKeyRSA,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String userId) {
@@ -30,8 +30,8 @@ class UserModel {
       userName: data['userName'] ?? '',
       aesKey: data['aesKey'] ?? '',
       aesIV: data['aesIV'] ?? '',
-      publicKey: data['publicKey'] ?? '',
-      privateKey: data['privateKey'] ?? '',
+      publicKeyRSA: data['publicKeyRSA'] ?? '',
+      privateKeyRSA: data['privateKeyRSA'] ?? '',
     );
   }
 }
