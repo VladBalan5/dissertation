@@ -5,6 +5,8 @@ import 'package:chat_app/screens/users_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:chat_app/utils/rsa_helper.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -18,6 +20,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late Stream<List<Chat>> chatStream;
   UserModel? currentUserData;
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -29,8 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
         .orderBy('lastMessageTime', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Chat.fromFirestore(doc.data()))
-            .toList());
+        .map((doc) => Chat.fromFirestore(doc.data()))
+        .toList());
     getCurrentUserInfo(widget.currentUserId);
   }
 
@@ -49,6 +52,20 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print('Error getting user info: $e');
+    }
+  }
+
+  Future<String> _decryptMessage(String encryptedMessage) async {
+    try {
+      String? privateKey = await secureStorage.read(key: 'user-${widget.currentUserId}-privateKey');
+      if (privateKey != null) {
+        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, privateKey);
+      } else {
+        throw Exception('Private key not found');
+      }
+    } catch (e) {
+      print('Decryption error: $e');
+      return 'Error decrypting message';
     }
   }
 
@@ -75,26 +92,40 @@ class _ChatScreenState extends State<ChatScreen> {
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final chat = snapshot.data![index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(chat.otherUserAvatar),
-                ),
-                title: Text(chat.otherUserName),
-                subtitle: Text(chat.lastMessage),
-                trailing: Text(
-                    DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
-                onTap: () {
-                  print("lala9 ${widget.currentUserId} ${chat.otherUserId}");
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MessageScreen(
-                        currentUserData: currentUserData!,
-                        otherUserId: chat.otherUserId,
-                        otherUserName: chat.otherUserName,
-                        otherUserProfilePicUrl: chat.otherUserAvatar,
+              return FutureBuilder<String>(
+                future: _decryptMessage(chat.lastMessage),
+                builder: (context, decryptedSnapshot) {
+                  if (decryptedSnapshot.connectionState == ConnectionState.waiting) {
+                    return ListTile(
+                      title: Text('Decrypting...'),
+                    );
+                  } else if (decryptedSnapshot.hasError) {
+                    return ListTile(
+                      title: Text('Error decrypting message'),
+                    );
+                  } else {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(chat.otherUserAvatar),
                       ),
-                    ),
-                  );
+                      title: Text(chat.otherUserName),
+                      subtitle: Text(decryptedSnapshot.data ?? 'Error decrypting message'),
+                      trailing: Text(
+                          DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => MessageScreen(
+                              currentUserData: currentUserData!,
+                              otherUserId: chat.otherUserId,
+                              otherUserName: chat.otherUserName,
+                              otherUserProfilePicUrl: chat.otherUserAvatar,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
                 },
               );
             },
@@ -111,7 +142,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           );
         },
-        // child: Icon(Icons.person_add),
         child: Icon(Icons.chat),
         tooltip: 'Start Conversation',
       ),
