@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MessageScreen extends StatefulWidget {
   final UserModel currentUserData;
@@ -24,6 +27,7 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
   String currentUserPrivateKey = '';
   String currentUserPublicKey = '';
 
@@ -38,8 +42,9 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('users')
         .doc(widget.currentUserData.userId)
         .get();
+    String? privateKey = await secureStorage.read(key:'user-${widget.currentUserData.userId}-privateKey');
     setState(() {
-      currentUserPrivateKey = currentUserSnapshot['privateKey'];
+      currentUserPrivateKey = privateKey ?? '';
       currentUserPublicKey = currentUserSnapshot['publicKey'];
     });
   }

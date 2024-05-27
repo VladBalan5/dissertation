@@ -17,6 +17,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.3.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.2.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fast_rsa-3.6.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-7.0.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

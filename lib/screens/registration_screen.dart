@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:chat_app/utils/rsa_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:chat_app/screens/login_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -17,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'RO');
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Password cannot be empty';
                   } else if (!RegExp(
-                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$')
+                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$')
                       .hasMatch(value)) {
                     return 'Password must be at least 12 characters long and include at least one lower case letter, one upper case letter, one number, and one symbol';
                   }
@@ -80,7 +84,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   selectorType: PhoneInputSelectorType.DIALOG,
                 ),
                 ignoreBlank: false,
-                // autoValidateMode: AutovalidateMode.disabled,
                 selectorTextStyle: TextStyle(color: Colors.black),
                 initialValue: phoneNumber,
                 textFieldController: _phoneController,
@@ -119,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -132,6 +135,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       User? user = userCredential.user;
       String defaultProfilePic = "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
+        // Store the private key in secure storage
+        await secureStorage.write(key:'user-${user.uid}-privateKey', value: privateKey);
         // Send verification email
         await user.sendEmailVerification();
         // Save user data in Firestore
@@ -142,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'userName': userName,
           'userId': user.uid,
           'publicKey': publicKey,
-          'privateKey': privateKey,
+          // Do not store the private key in Firestore
         });
         await showVerificationEmailSentDialog(context, user);
       }
