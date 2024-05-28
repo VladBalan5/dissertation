@@ -7,7 +7,6 @@ class UserModel {
   final String aesKey;
   final String aesIV;
   final String publicKey;
-  final String privateKey;
 
   UserModel({
     required this.email,
@@ -18,7 +17,6 @@ class UserModel {
     required this.aesKey,
     required this.aesIV,
     required this.publicKey,
-    required this.privateKey,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String userId) {
@@ -31,7 +29,6 @@ class UserModel {
       aesKey: data['aesKey'] ?? '',
       aesIV: data['aesIV'] ?? '',
       publicKey: data['publicKey'] ?? '',
-      privateKey: data['privateKey'] ?? '',
     );
   }
 }
