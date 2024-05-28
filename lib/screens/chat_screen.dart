@@ -2,11 +2,13 @@ import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 import 'package:chat_app/screens/users_screen.dart';
+import 'package:chat_app/screens/login_screen.dart'; // Import the login screen
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -69,15 +71,33 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future<void> signOut(BuildContext context) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    try {
+      await _auth.signOut();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    } catch (e) {
+      print("Error signing out: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Your Chats")),
+      appBar: AppBar(
+        title: Text("Your Chats"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => signOut(context),
+          ),
+        ],
+      ),
       body: StreamBuilder<List<Chat>>(
         stream: chatStream,
         builder: (context, snapshot) {
-          print("lala3 ${widget.currentUserId}");
-          print("lala4 ${snapshot.data}");
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
@@ -86,7 +106,12 @@ class _ChatScreenState extends State<ChatScreen> {
             return Center(child: Text('An error occurred!'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No chats found"));
+            return Center(
+              child: Text(
+                "No active chats",
+                style: TextStyle(fontSize: 25),
+              ),
+            );
           }
           return ListView.builder(
             itemCount: snapshot.data!.length,
