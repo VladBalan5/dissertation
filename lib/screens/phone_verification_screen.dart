@@ -52,10 +52,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
   Future<void> _verifyPhoneNumber() async {
     setState(() {
-      _isLoading = true;  // Start loading
+      _isLoading = true; // Start loading
     });
 
-    final PhoneVerificationCompleted verificationCompleted = (PhoneAuthCredential credential) async {
+    final PhoneVerificationCompleted verificationCompleted =
+        (PhoneAuthCredential credential) async {
       try {
         await widget.user.linkWithCredential(credential);
       } on FirebaseAuthException catch (e) {
@@ -69,32 +70,54 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
       if (!mounted) return;
       setState(() {
-        _isLoading = false;  // Stop loading after verification is completed
+        _isLoading = false; // Stop loading after verification is completed
       });
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(currentUserId: widget.user.uid)));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            currentUserId: widget.user.uid,
+          ),
+        ),
+      );
     };
 
-    final PhoneVerificationFailed verificationFailed = (FirebaseAuthException e) {
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException e) {
       if (!mounted) return;
       setState(() {
-        _isLoading = false;  // Stop loading on failure
+        _isLoading = false; // Stop loading on failure
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Verification failed. Error: ${e.message}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Verification failed. Error: ${e.message}",
+          ),
+        ),
+      );
     };
 
     final PhoneCodeSent codeSent = (String verificationId, int? resendToken) {
       if (!mounted) return;
       setState(() {
-        _isLoading = false;  // Stop loading when code is sent
+        _isLoading = false; // Stop loading when code is sent
         _verificationId = verificationId;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Verification code sent to ${_currentPhoneNumber}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Verification code sent to ${_currentPhoneNumber}",
+          ),
+        ),
+      );
     };
 
-    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout = (String verificationId) {
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
       if (!mounted) return;
       setState(() {
-        _isLoading = false;  // Ensure loading is stopped if auto retrieval timeout occurs
+        _isLoading =
+            false; // Ensure loading is stopped if auto retrieval timeout occurs
         _verificationId = verificationId;
       });
     };
@@ -129,16 +152,27 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(currentUserId: widget.user.uid)));
+                builder: (context) =>
+                    ChatScreen(currentUserId: widget.user.uid)));
       } else {
         print("lala6");
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Failed to sign in! Try again.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Failed to sign in! Try again.",
+            ),
+          ),
+        );
       }
     } catch (e) {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to sign in! Try again.")));
+        SnackBar(
+          content: Text(
+            "Failed to sign in! Try again.",
+          ),
+        ),
+      );
     }
   }
 
@@ -199,7 +233,9 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                     textFieldController: _phoneNumberController,
                     formatInput: false,
                     keyboardType: TextInputType.numberWithOptions(
-                        signed: true, decimal: true),
+                      signed: true,
+                      decimal: true,
+                    ),
                     inputBorder: OutlineInputBorder(),
                   )
                 : Text("Phone Number: $_currentPhoneNumber"),
@@ -224,14 +260,18 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _resendCode,  // Disable button while loading
+                  onPressed: _isLoading ? null : _resendCode,
+                  // Disable button while loading
                   child: Text('Resend Code'),
                 ),
                 SizedBox(width: 10),
-                _isLoading ? SpinKitThreeBounce(
-                  color: Theme.of(context).primaryColor,
-                  size: 20.0,
-                ) : Container()  // Show spinner or an empty container if not loading
+                _isLoading
+                    ? SpinKitThreeBounce(
+                        color: Theme.of(context).primaryColor,
+                        size: 20.0,
+                      )
+                    : Container()
+                // Show spinner or an empty container if not loading
               ],
             ),
             // ElevatedButton(

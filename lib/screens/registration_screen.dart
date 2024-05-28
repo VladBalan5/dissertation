@@ -64,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Password cannot be empty';
                   } else if (!RegExp(
-                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$')
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$')
                       .hasMatch(value)) {
                     return 'Password must be at least 12 characters long and include at least one lower case letter, one upper case letter, one number, and one symbol';
                   }
@@ -122,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       UserCredential userCredential =
-      await _auth.createUserWithEmailAndPassword(
+          await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -133,10 +133,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String privateKey = rsaKeys['privateKey']!;
 
       User? user = userCredential.user;
-      String defaultProfilePic = "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
+      String defaultProfilePic =
+          "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
         // Store the private key in secure storage
-        await secureStorage.write(key:'user-${user.uid}-privateKey', value: privateKey);
+        await secureStorage.write(
+            key: 'user-${user.uid}-privateKey', value: privateKey);
         // Send verification email
         await user.sendEmailVerification();
         // Save user data in Firestore
@@ -157,10 +159,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> showVerificationEmailSentDialog(BuildContext context, User user) async {
+  Future<void> showVerificationEmailSentDialog(
+      BuildContext context, User user) async {
     showDialog(
       context: context,
-      barrierDismissible: true,  // Allow dismissing the dialog by tapping outside of it
+      barrierDismissible: true,
+      // Allow dismissing the dialog by tapping outside of it
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,10 +176,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ],
         ),
-        content: SingleChildScrollView(  // Use SingleChildScrollView for long contents
+        content: SingleChildScrollView(
+          // Use SingleChildScrollView for long contents
           child: ListBody(
             children: <Widget>[
-              Text("A verification email has been sent to your email address. Please verify your email to continue."),
+              Text(
+                "A verification email has been sent to your email address. Please verify your email to continue.",
+              ),
             ],
           ),
         ),
@@ -184,20 +191,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Text('Resend Email'),
             onPressed: () async {
               await user.sendEmailVerification();
-              Navigator.of(ctx).pop();  // Close the dialog
-              showVerificationEmailSentDialog(context, user);  // Reopen the dialog to show updated status
+              Navigator.of(ctx).pop(); // Close the dialog
+              showVerificationEmailSentDialog(
+                  context, user); // Reopen the dialog to show updated status
             },
           ),
           TextButton(
             child: Text('I Verified'),
             onPressed: () async {
               print("lala3");
-              await user.reload();  // Reload the user to update the emailVerified status
-              User? updatedUser = FirebaseAuth.instance.currentUser;  // Get the latest instance of the user
-              print("Updated email verified status: ${updatedUser!.emailVerified}");
-
-              if (updatedUser.emailVerified) {
-                Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+              await user
+                  .reload(); // Reload the user to update the emailVerified status
+              User? updatedUser = FirebaseAuth
+                  .instance.currentUser; // Get the latest instance of the user
+              if (updatedUser!.emailVerified) {
+                Navigator.of(ctx).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
                 _showSuccessDialog(context);
               } else {
                 Navigator.of(ctx).pop();
@@ -214,7 +226,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _showErrorDialog(String message, BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true,  // This allows the dialog to close when tapping outside
+      barrierDismissible: true,
+      // This allows the dialog to close when tapping outside
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,7 +239,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ],
         ),
-        content: SingleChildScrollView( // Ensures the dialog handles overflow
+        content: SingleChildScrollView(
+          // Ensures the dialog handles overflow
           child: Text(message),
         ),
         actions: <Widget>[
@@ -242,7 +256,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true,  // This allows the dialog to close when tapping outside
+      barrierDismissible: true,
+      // This allows the dialog to close when tapping outside
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,7 +270,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
         content: SingleChildScrollView(
-          child: Text('Your account was created with success. You can login now.'),
+          child:
+              Text('Your account was created with success. You can login now.'),
         ),
         actions: <Widget>[
           TextButton(

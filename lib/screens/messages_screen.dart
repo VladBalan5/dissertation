@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
@@ -42,7 +40,9 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('users')
         .doc(widget.currentUserData.userId)
         .get();
-    String? privateKey = await secureStorage.read(key:'user-${widget.currentUserData.userId}-privateKey');
+    String? privateKey = await secureStorage.read(
+      key: 'user-${widget.currentUserData.userId}-privateKey',
+    );
     setState(() {
       currentUserPrivateKey = privateKey ?? '';
       currentUserPublicKey = currentUserSnapshot['publicKey'];
@@ -61,8 +61,16 @@ class _MessageScreenState extends State<MessageScreen> {
       String otherUserPublicKey = otherUserSnapshot['publicKey'];
 
       // Encrypt the message with both public keys
-      String encryptedMessageForOtherUser = await RsaKeyHelper.encryptWithPublicKey(messageText, otherUserPublicKey);
-      String encryptedMessageForCurrentUser = await RsaKeyHelper.encryptWithPublicKey(messageText, widget.currentUserData.publicKey);
+      String encryptedMessageForOtherUser =
+          await RsaKeyHelper.encryptWithPublicKey(
+        messageText,
+        otherUserPublicKey,
+      );
+      String encryptedMessageForCurrentUser =
+          await RsaKeyHelper.encryptWithPublicKey(
+        messageText,
+        widget.currentUserData.publicKey,
+      );
 
       // Store encrypted message for both users
       FirebaseFirestore.instance
@@ -125,7 +133,10 @@ class _MessageScreenState extends State<MessageScreen> {
     try {
       if (currentUserPrivateKey.isNotEmpty) {
         print('Attempting to decrypt message: $encryptedMessage');
-        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, currentUserPrivateKey);
+        return await RsaKeyHelper.decryptWithPrivateKey(
+          encryptedMessage,
+          currentUserPrivateKey,
+        );
       } else {
         throw Exception('Current user private key is empty.');
       }
@@ -179,24 +190,34 @@ class _MessageScreenState extends State<MessageScreen> {
                   reverse: true,
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                    var data = snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>;
                     Timestamp? timestamp = data['timestamp'] as Timestamp?;
                     if (timestamp == null) {
                       return Container();
                     }
                     Message message = Message.fromFirestore(data);
-                    bool isMine = message.senderId == widget.currentUserData.userId;
+                    bool isMine =
+                        message.senderId == widget.currentUserData.userId;
                     return FutureBuilder<String>(
                       future: _decryptMessage(message.text),
                       builder: (context, decryptedSnapshot) {
-                        if (decryptedSnapshot.connectionState == ConnectionState.waiting) {
+                        if (decryptedSnapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return ListTile(
                             title: Align(
-                              alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: isMine
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 16,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: isMine ? Colors.blue[200] : Colors.grey[300],
+                                  color: isMine
+                                      ? Colors.blue[200]
+                                      : Colors.grey[300],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text('Decrypting...'),
@@ -206,11 +227,18 @@ class _MessageScreenState extends State<MessageScreen> {
                         } else if (decryptedSnapshot.hasError) {
                           return ListTile(
                             title: Align(
-                              alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: isMine
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 16,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: isMine ? Colors.red[200] : Colors.red[300],
+                                  color: isMine
+                                      ? Colors.red[200]
+                                      : Colors.red[300],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text('Error decrypting message'),
@@ -220,14 +248,24 @@ class _MessageScreenState extends State<MessageScreen> {
                         } else {
                           return ListTile(
                             title: Align(
-                              alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: isMine
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 16,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: isMine ? Colors.blue[200] : Colors.grey[300],
+                                  color: isMine
+                                      ? Colors.blue[200]
+                                      : Colors.grey[300],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(decryptedSnapshot.data ?? 'Error decrypting message'),
+                                child: Text(
+                                  decryptedSnapshot.data ??
+                                      'Error decrypting message',
+                                ),
                               ),
                             ),
                           );
@@ -246,7 +284,8 @@ class _MessageScreenState extends State<MessageScreen> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: InputDecoration(labelText: "Type your message here..."),
+                    decoration:
+                        InputDecoration(labelText: "Type your message here..."),
                   ),
                 ),
                 IconButton(

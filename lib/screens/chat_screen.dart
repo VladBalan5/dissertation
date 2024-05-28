@@ -34,8 +34,8 @@ class _ChatScreenState extends State<ChatScreen> {
         .orderBy('lastMessageTime', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-        .map((doc) => Chat.fromFirestore(doc.data()))
-        .toList());
+            .map((doc) => Chat.fromFirestore(doc.data()))
+            .toList());
     getCurrentUserInfo(widget.currentUserId);
   }
 
@@ -48,8 +48,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (userDoc.exists) {
         setState(() {
-          currentUserData =
-              UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userId);
+          currentUserData = UserModel.fromMap(
+            userDoc.data() as Map<String, dynamic>,
+            userId,
+          );
         });
       }
     } catch (e) {
@@ -59,9 +61,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<String> _decryptMessage(String encryptedMessage) async {
     try {
-      String? privateKey = await secureStorage.read(key: 'user-${widget.currentUserId}-privateKey');
+      String? privateKey = await secureStorage.read(
+          key: 'user-${widget.currentUserId}-privateKey');
       if (privateKey != null) {
-        return await RsaKeyHelper.decryptWithPrivateKey(encryptedMessage, privateKey);
+        return await RsaKeyHelper.decryptWithPrivateKey(
+            encryptedMessage, privateKey);
       } else {
         throw Exception('Private key not found');
       }
@@ -99,11 +103,17 @@ class _ChatScreenState extends State<ChatScreen> {
         stream: chatStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
           if (snapshot.error != null) {
             print(snapshot.error); // Log any errors that might occur
-            return Center(child: Text('An error occurred!'));
+            return Center(
+              child: Text(
+                'An error occurred!',
+              ),
+            );
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
@@ -120,7 +130,8 @@ class _ChatScreenState extends State<ChatScreen> {
               return FutureBuilder<String>(
                 future: _decryptMessage(chat.lastMessage),
                 builder: (context, decryptedSnapshot) {
-                  if (decryptedSnapshot.connectionState == ConnectionState.waiting) {
+                  if (decryptedSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return ListTile(
                       title: Text('Decrypting...'),
                     );
@@ -134,9 +145,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         backgroundImage: NetworkImage(chat.otherUserAvatar),
                       ),
                       title: Text(chat.otherUserName),
-                      subtitle: Text(decryptedSnapshot.data ?? 'Error decrypting message'),
-                      trailing: Text(
-                          DateFormat('dd MMM, hh:mm a').format(chat.lastMessageTime)),
+                      subtitle: Text(
+                        decryptedSnapshot.data ?? 'Error decrypting message',
+                      ),
+                      trailing: Text(DateFormat('dd MMM, hh:mm a')
+                          .format(chat.lastMessageTime)),
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(

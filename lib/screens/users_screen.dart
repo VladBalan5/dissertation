@@ -23,11 +23,13 @@ class _UserListScreenState extends State<UserListScreen> {
     _fetchUsers();
   }
 
-
   Future<void> _fetchUsers() async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('users').get();
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').get();
     setState(() {
-      _users = snapshot.docs.where((doc) => doc.id != widget.currentUserData.userId).toList();
+      _users = snapshot.docs
+          .where((doc) => doc.id != widget.currentUserData.userId)
+          .toList();
       _filteredUsers = _users;
     });
   }
@@ -40,7 +42,9 @@ class _UserListScreenState extends State<UserListScreen> {
     } else {
       setState(() {
         _filteredUsers = _users.where((user) {
-          return (user['userName'] as String).toLowerCase().contains(query.toLowerCase());
+          return (user['userName'] as String)
+              .toLowerCase()
+              .contains(query.toLowerCase());
         }).toList();
       });
     }
@@ -71,9 +75,6 @@ class _UserListScreenState extends State<UserListScreen> {
               itemCount: _filteredUsers.length,
               itemBuilder: (context, index) {
                 DocumentSnapshot user = _filteredUsers[index];
-                print("lala11 ${user.id}");
-                print("lala12 ${_filteredUsers[index].id}");
-                print("lala13 ${user['userName']}");
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(user['profilePicUrl']),
@@ -81,12 +82,17 @@ class _UserListScreenState extends State<UserListScreen> {
                   title: Text(user['userName']),
                   subtitle: Text(user['email']),
                   onTap: () {
-                    _checkAndCreateChatCollection(user.id, user['userName'], user['profilePicUrl']);
+                    _checkAndCreateChatCollection(
+                      user.id,
+                      user['userName'],
+                      user['profilePicUrl'],
+                    );
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => MessageScreen(
                           currentUserData: widget.currentUserData,
-                          otherUserId: user['userId'], // sa verific daca la pot face ca celelalte
+                          otherUserId: user['userId'],
+                          // sa verific daca la pot face ca celelalte
                           otherUserName: user['userName'],
                           otherUserProfilePicUrl: user['profilePicUrl'],
                         ),
@@ -102,7 +108,8 @@ class _UserListScreenState extends State<UserListScreen> {
     );
   }
 
-  Future<void> _checkAndCreateChatCollection(String otherUserId, String otherUserName, String otherUserAvatar) async {
+  Future<void> _checkAndCreateChatCollection(
+      String otherUserId, String otherUserName, String otherUserAvatar) async {
     DocumentReference chatDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.currentUserData.userId)
@@ -110,14 +117,13 @@ class _UserListScreenState extends State<UserListScreen> {
         .doc(otherUserId);
 
     DocumentSnapshot chatDoc = await chatDocRef.get();
-    print("lala9 ${chatDoc.exists}");
     if (!chatDoc.exists) {
       await chatDocRef.set({
         'lastMessage': '',
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'otherUserAvatar': otherUserAvatar, // You can set the current user's avatar here
+        'otherUserAvatar': otherUserAvatar,
         'otherUserId': otherUserId,
-        'otherUserName': otherUserName, // You can set the current user's name here
+        'otherUserName': otherUserName,
       });
     }
 
@@ -131,9 +137,9 @@ class _UserListScreenState extends State<UserListScreen> {
     await otherUserChatDocRef.set({
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
-      'otherUserAvatar': widget.currentUserData.profilePicUrl, // You can set the current user's avatar here
+      'otherUserAvatar': widget.currentUserData.profilePicUrl,
       'otherUserId': widget.currentUserData.userId,
-      'otherUserName': widget.currentUserData.userName, // You can set the current user's name here
+      'otherUserName': widget.currentUserData.userName,
     });
   }
 }

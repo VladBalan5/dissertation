@@ -4,6 +4,7 @@ import 'package:chat_app/screens/registration_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -26,6 +27,10 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            ElevatedButton(
+              onPressed: _deleteAllItems,
+              child: Text("Read Secure Storage"),
+            ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: "Email Address"),
@@ -39,9 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // checkEmailVerified(context);
-                // print("lala6 ${emailVerified}");
-                // if (emailVerified) {
                 signInWithEmailAndPassword(
                   _emailController.text.trim(),
                   _passwordController.text.trim(),
@@ -92,7 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (ctx) => AlertDialog(
         title: Text('Email Not Verified'),
         content: Text(
-            'Your email has not been verified. Please check your email for the verification link, or resend the verification email.'),
+          'Your email has not been verified. Please check your email for the verification link, or resend the verification email.',
+        ),
         actions: <Widget>[
           TextButton(
             child: Text('Resend Email'),
@@ -118,6 +121,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteAllItems() async {
+    final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+    try {
+      await secureStorage.deleteAll();
+      print('Deleted all items from secure storage');
+    } catch (e) {
+      print('Error deleting all items: $e');
+    }
   }
 
   Future<void> signInWithEmailAndPassword(
@@ -146,7 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
               userDoc.data() as Map<String, dynamic>?;
           String phoneNumber = userData?['phoneNumber'] ?? '';
           if (phoneNumber.isNotEmpty) {
-            // Redirect to Phone Verification Screen with the phone number
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => PhoneVerificationScreen(
