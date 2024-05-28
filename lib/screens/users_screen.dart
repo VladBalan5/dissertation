@@ -126,6 +126,7 @@ class _UserListScreenState extends State<UserListScreen> {
         'otherUserName': otherUserName,
       });
     }
+  }
 
     // Create a corresponding chat document in the other user's chats collection
     DocumentReference otherUserChatDocRef = FirebaseFirestore.instance
@@ -134,12 +135,15 @@ class _UserListScreenState extends State<UserListScreen> {
         .collection('chats')
         .doc(widget.currentUserData.userId);
 
-    await otherUserChatDocRef.set({
-      'lastMessage': '',
-      'lastMessageTime': FieldValue.serverTimestamp(),
-      'otherUserAvatar': widget.currentUserData.profilePicUrl,
-      'otherUserId': widget.currentUserData.userId,
-      'otherUserName': widget.currentUserData.userName,
-    });
+    DocumentSnapshot otherUserChatDoc = await otherUserChatDocRef.get();
+    if (!otherUserChatDoc.exists) {
+      await otherUserChatDocRef.set({
+        'lastMessage': '',
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'otherUserAvatar': widget.currentUserData.profilePicUrl,
+        'otherUserId': widget.currentUserData.userId,
+        'otherUserName': widget.currentUserData.userName,
+      });
+    }
   }
 }

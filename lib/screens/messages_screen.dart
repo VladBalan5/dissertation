@@ -153,7 +153,9 @@ class _MessageScreenState extends State<MessageScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(widget.otherUserProfilePicUrl),
+              backgroundImage: NetworkImage(
+                widget.otherUserProfilePicUrl,
+              ),
             ),
             SizedBox(width: 10),
             Text(widget.otherUserName),
