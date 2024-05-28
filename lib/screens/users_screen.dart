@@ -126,7 +126,6 @@ class _UserListScreenState extends State<UserListScreen> {
         'otherUserName': otherUserName,
       });
     }
-  }
 
     // Create a corresponding chat document in the other user's chats collection
     DocumentReference otherUserChatDocRef = FirebaseFirestore.instance
