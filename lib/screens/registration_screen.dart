@@ -128,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       // Generate RSA key pair
-      var rsaKeys = await RsaKeyHelper.generateRSAKeyPair();
+      var rsaKeys = await RsaHelper.generateRSAKeyPair();
       String publicKey = rsaKeys['publicKey']!;
       String privateKey = rsaKeys['privateKey']!;
 

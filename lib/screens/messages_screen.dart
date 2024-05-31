@@ -62,12 +62,12 @@ class _MessageScreenState extends State<MessageScreen> {
 
       // Encrypt the message with both public keys
       String encryptedMessageForOtherUser =
-          await RsaKeyHelper.encryptWithPublicKey(
+          await RsaHelper.encryptWithPublicKey(
         messageText,
         otherUserPublicKey,
       );
       String encryptedMessageForCurrentUser =
-          await RsaKeyHelper.encryptWithPublicKey(
+          await RsaHelper.encryptWithPublicKey(
         messageText,
         widget.currentUserData.publicKey,
       );
@@ -133,7 +133,7 @@ class _MessageScreenState extends State<MessageScreen> {
     try {
       if (currentUserPrivateKey.isNotEmpty) {
         print('Attempting to decrypt message: $encryptedMessage');
-        return await RsaKeyHelper.decryptWithPrivateKey(
+        return await RsaHelper.decryptWithPrivateKey(
           encryptedMessage,
           currentUserPrivateKey,
         );

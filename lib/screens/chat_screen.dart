@@ -64,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
       String? privateKey = await secureStorage.read(
           key: 'user-${widget.currentUserId}-privateKey');
       if (privateKey != null) {
-        return await RsaKeyHelper.decryptWithPrivateKey(
+        return await RsaHelper.decryptWithPrivateKey(
             encryptedMessage, privateKey);
       } else {
         throw Exception('Private key not found');
