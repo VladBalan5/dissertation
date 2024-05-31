@@ -1,6 +1,6 @@
 import 'package:fast_rsa/fast_rsa.dart';
 
-class RsaKeyHelper {
+class RsaHelper {
   // Generates a new RSA key pair
   static Future<Map<String, String>> generateRSAKeyPair() async {
     var keyPair = await RSA.generate(2048);
