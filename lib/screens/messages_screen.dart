@@ -28,6 +28,7 @@ class _MessageScreenState extends State<MessageScreen> {
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
   String currentUserPrivateKey = '';
   String currentUserPublicKey = '';
+  String otherUserPublicKey = '';
 
   @override
   void initState() {
@@ -40,25 +41,28 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('users')
         .doc(widget.currentUserData.userId)
         .get();
+    String currentUserPublicKey = currentUserSnapshot['publicKey'];
+
     String? privateKey = await secureStorage.read(
       key: 'user-${widget.currentUserData.userId}-privateKey',
     );
+
+    DocumentSnapshot otherUserSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.otherUserId)
+        .get();
+    String otherUserPublicKey = otherUserSnapshot['publicKey'];
+
     setState(() {
       currentUserPrivateKey = privateKey ?? '';
-      currentUserPublicKey = currentUserSnapshot['publicKey'];
+      currentUserPublicKey = currentUserPublicKey;
+      otherUserPublicKey = otherUserPublicKey;
     });
   }
 
   Future<void> _sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       String messageText = _messageController.text;
-
-      // Get other user's public key
-      DocumentSnapshot otherUserSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.otherUserId)
-          .get();
-      String otherUserPublicKey = otherUserSnapshot['publicKey'];
 
       // Encrypt the message with both public keys
       String encryptedMessageForOtherUser =
