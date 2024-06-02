@@ -4,8 +4,6 @@ class UserModel {
   final String profilePicUrl;
   final String userId;
   final String userName;
-  final String aesKey;
-  final String aesIV;
   final String publicKey;
 
   UserModel({
@@ -14,8 +12,6 @@ class UserModel {
     required this.profilePicUrl,
     required this.userId,
     required this.userName,
-    required this.aesKey,
-    required this.aesIV,
     required this.publicKey,
   });
 
@@ -26,8 +22,6 @@ class UserModel {
       profilePicUrl: data['profilePicUrl'] ?? '',
       userId: userId,
       userName: data['userName'] ?? '',
-      aesKey: data['aesKey'] ?? '',
-      aesIV: data['aesIV'] ?? '',
       publicKey: data['publicKey'] ?? '',
     );
   }
