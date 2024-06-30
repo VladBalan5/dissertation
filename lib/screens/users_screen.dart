@@ -92,7 +92,6 @@ class _UserListScreenState extends State<UserListScreen> {
                         builder: (context) => MessageScreen(
                           currentUserData: widget.currentUserData,
                           otherUserId: user['userId'],
-                          // sa verific daca la pot face ca celelalte
                           otherUserName: user['userName'],
                           otherUserProfilePicUrl: user['profilePicUrl'],
                         ),
@@ -127,7 +126,6 @@ class _UserListScreenState extends State<UserListScreen> {
       });
     }
 
-    // Create a corresponding chat document in the other user's chats collection
     DocumentReference otherUserChatDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(otherUserId)

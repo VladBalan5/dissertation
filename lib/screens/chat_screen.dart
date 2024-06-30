@@ -2,13 +2,13 @@ import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/screens/messages_screen.dart';
 import 'package:chat_app/screens/users_screen.dart';
-import 'package:chat_app/screens/login_screen.dart'; // Import the login screen
+import 'package:chat_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -108,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           }
           if (snapshot.error != null) {
-            print(snapshot.error); // Log any errors that might occur
+            print(snapshot.error);
             return Center(
               child: Text(
                 'An error occurred!',

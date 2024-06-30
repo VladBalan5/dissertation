@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:chat_app/utils/rsa_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -136,12 +134,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String defaultProfilePic =
           "https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg";
       if (user != null) {
-        // Store the private key in secure storage
         await secureStorage.write(
             key: 'user-${user.uid}-privateKey', value: privateKey);
-        // Send verification email
         await user.sendEmailVerification();
-        // Save user data in Firestore
         await _firestore.collection('users').doc(user.uid).set({
           'email': email,
           'phoneNumber': phoneNumber,
@@ -149,7 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'userName': userName,
           'userId': user.uid,
           'publicKey': publicKey,
-          // Do not store the private key in Firestore
         });
         await showVerificationEmailSentDialog(context, user);
       }
@@ -164,7 +158,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      // Allow dismissing the dialog by tapping outside of it
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +170,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
         content: SingleChildScrollView(
-          // Use SingleChildScrollView for long contents
           child: ListBody(
             children: <Widget>[
               Text(
@@ -191,9 +183,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Text('Resend Email'),
             onPressed: () async {
               await user.sendEmailVerification();
-              Navigator.of(ctx).pop(); // Close the dialog
+              Navigator.of(ctx).pop();
               showVerificationEmailSentDialog(
-                  context, user); // Reopen the dialog to show updated status
+                  context, user);
             },
           ),
           TextButton(
@@ -201,9 +193,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onPressed: () async {
               print("lala3");
               await user
-                  .reload(); // Reload the user to update the emailVerified status
+                  .reload();
               User? updatedUser = FirebaseAuth
-                  .instance.currentUser; // Get the latest instance of the user
+                  .instance.currentUser;
               if (updatedUser!.emailVerified) {
                 Navigator.of(ctx).pushReplacement(
                   MaterialPageRoute(
@@ -227,7 +219,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      // This allows the dialog to close when tapping outside
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,7 +231,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
         content: SingleChildScrollView(
-          // Ensures the dialog handles overflow
           child: Text(message),
         ),
         actions: <Widget>[
@@ -257,7 +247,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      // This allows the dialog to close when tapping outside
       builder: (ctx) => AlertDialog(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

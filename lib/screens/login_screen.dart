@@ -1,4 +1,3 @@
-import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/screens/phone_verification_screen.dart';
 import 'package:chat_app/screens/registration_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
