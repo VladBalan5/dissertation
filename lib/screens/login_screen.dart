@@ -13,10 +13,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
-
   final _passwordController = TextEditingController();
-
   bool emailVerified = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +39,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
               ),
               SizedBox(height: 20),
-              ElevatedButton(
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
                 onPressed: () async {
-                  signInWithEmailAndPassword(
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  await signInWithEmailAndPassword(
                     _emailController.text.trim(),
                     _passwordController.text.trim(),
                     context,
                   );
+                  setState(() {
+                    _isLoading = false;
+                  });
                 },
                 child: Text("Login"),
               ),
@@ -141,7 +148,6 @@ class _LoginScreenState extends State<LoginScreen> {
         password: password,
       );
 
-      // Assuming the user is logged in now
       User? user = userCredential.user;
 
       await checkEmailVerified(context);
@@ -149,9 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (emailVerified) {
         if (user != null) {
           DocumentSnapshot userDoc =
-              await _firestore.collection('users').doc(user.uid).get();
+          await _firestore.collection('users').doc(user.uid).get();
           Map<String, dynamic>? userData =
-              userDoc.data() as Map<String, dynamic>?;
+          userDoc.data() as Map<String, dynamic>?;
           String phoneNumber = userData?['phoneNumber'] ?? '';
           if (phoneNumber.isNotEmpty) {
             Navigator.of(context).pushReplacement(

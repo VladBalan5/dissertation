@@ -52,7 +52,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
   Future<void> _verifyPhoneNumber() async {
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     final PhoneVerificationCompleted verificationCompleted =
@@ -70,7 +70,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
       if (!mounted) return;
       setState(() {
-        _isLoading = false; // Stop loading after verification is completed
+        _isLoading = false;
       });
       Navigator.pushReplacement(
         context,
@@ -86,7 +86,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         (FirebaseAuthException e) {
       if (!mounted) return;
       setState(() {
-        _isLoading = false; // Stop loading on failure
+        _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -100,7 +100,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     final PhoneCodeSent codeSent = (String verificationId, int? resendToken) {
       if (!mounted) return;
       setState(() {
-        _isLoading = false; // Stop loading when code is sent
+        _isLoading = false;
         _verificationId = verificationId;
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +117,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       if (!mounted) return;
       setState(() {
         _isLoading =
-            false; // Ensure loading is stopped if auto retrieval timeout occurs
+        false;
         _verificationId = verificationId;
       });
     };
@@ -133,6 +133,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   Future<void> _submitSmsCode() async {
+    setState(() {
+      _isLoading = true;
+      print("lala");
+    });
+
     try {
       final AuthCredential credential = PhoneAuthProvider.credential(
         verificationId: _verificationId,
@@ -155,7 +160,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                 builder: (context) =>
                     ChatScreen(currentUserId: widget.user.uid)));
       } else {
-        print("lala6");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -173,6 +177,10 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           ),
         ),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -184,9 +192,9 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           .doc(widget.user.uid)
           .update({'phoneNumber': phoneNumber});
       setState(() {
-        _isEditing = false; // Turn off editing mode
+        _isEditing = false;
       });
-      _verifyPhoneNumber(); // Optionally resend verification
+      _verifyPhoneNumber();
     }
   }
 
@@ -195,12 +203,15 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       _savePhoneNumber();
     } else {
       setState(() {
-        _isEditing = true; // Start editing
+        _isEditing = true;
       });
     }
   }
 
   void _resendCode() {
+    setState(() {
+      _isLoading = true;
+    });
     _verifyPhoneNumber();
     FirebaseFirestore.instance
         .collection('users')
@@ -221,23 +232,23 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           children: <Widget>[
             _isEditing
                 ? InternationalPhoneNumberInput(
-                    onInputChanged: (PhoneNumber number) {
-                      _currentPhoneNumber = number.phoneNumber!;
-                      phoneNumberwithProps = number;
-                      print(number.phoneNumber); // Updated number
-                    },
-                    initialValue: phoneNumberwithProps,
-                    selectorConfig: SelectorConfig(
-                      selectorType: PhoneInputSelectorType.DIALOG,
-                    ),
-                    textFieldController: _phoneNumberController,
-                    formatInput: false,
-                    keyboardType: TextInputType.numberWithOptions(
-                      signed: true,
-                      decimal: true,
-                    ),
-                    inputBorder: OutlineInputBorder(),
-                  )
+              onInputChanged: (PhoneNumber number) {
+                _currentPhoneNumber = number.phoneNumber!;
+                phoneNumberwithProps = number;
+                print(number.phoneNumber);
+              },
+              initialValue: phoneNumberwithProps,
+              selectorConfig: SelectorConfig(
+                selectorType: PhoneInputSelectorType.DIALOG,
+              ),
+              textFieldController: _phoneNumberController,
+              formatInput: false,
+              keyboardType: TextInputType.numberWithOptions(
+                signed: true,
+                decimal: true,
+              ),
+              inputBorder: OutlineInputBorder(),
+            )
                 : Text("Phone Number: $_currentPhoneNumber"),
             SizedBox(height: 10),
             ElevatedButton(
@@ -261,23 +272,17 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
               children: [
                 ElevatedButton(
                   onPressed: _isLoading ? null : _resendCode,
-                  // Disable button while loading
                   child: Text('Resend Code'),
                 ),
                 SizedBox(width: 10),
                 _isLoading
                     ? SpinKitThreeBounce(
-                        color: Theme.of(context).primaryColor,
-                        size: 20.0,
-                      )
+                  color: Theme.of(context).primaryColor,
+                  size: 20.0,
+                )
                     : Container()
-                // Show spinner or an empty container if not loading
               ],
             ),
-            // ElevatedButton(
-            //   onPressed: _resendCode,
-            //   child: Text('Resend Code'),
-            // ),
           ],
         ),
       ),
