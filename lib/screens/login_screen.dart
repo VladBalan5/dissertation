@@ -22,49 +22,47 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Login")),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: _deleteAllItems,
-              child: Text("Read Secure Storage"),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: "Email Address"),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                signInWithEmailAndPassword(
-                  _emailController.text.trim(),
-                  _passwordController.text.trim(),
-                  context,
-                );
-                // }
-              },
-              child: Text("Login"),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => RegisterScreen(),
-                  ),
-                );
-              },
-              child: Text("Create account"),
-            ),
-          ],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: "Email Address"),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(labelText: "Password"),
+                obscureText: true,
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  signInWithEmailAndPassword(
+                    _emailController.text.trim(),
+                    _passwordController.text.trim(),
+                    context,
+                  );
+                },
+                child: Text("Login"),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => RegisterScreen(),
+                    ),
+                  );
+                },
+                child: Text("Create account"),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -75,10 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
     User? user = _auth.currentUser;
 
     await user?.reload();
-    user = _auth.currentUser; // Refresh the user instance
+    user = _auth.currentUser;
 
     if (user != null && !user.emailVerified) {
-      // User's email is not verified, show the dialog
       showEmailNotVerifiedDialog(context, user);
     } else {
       setState(() {
@@ -102,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () async {
               await user.sendEmailVerification();
               await FirebaseAuth.instance.signOut();
-              Navigator.of(ctx).pop(); // Close the dialog
+              Navigator.of(ctx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Verification email has been resent."),
@@ -151,10 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (emailVerified) {
         if (user != null) {
-          // Fetch the phone number from Firestore
           DocumentSnapshot userDoc =
               await _firestore.collection('users').doc(user.uid).get();
-          // Cast the data to Map<String, dynamic>
           Map<String, dynamic>? userData =
               userDoc.data() as Map<String, dynamic>?;
           String phoneNumber = userData?['phoneNumber'] ?? '';
@@ -168,7 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           } else {
-            // Handle case where phone number is not available
             print("Phone number not found in the database.");
           }
         }
