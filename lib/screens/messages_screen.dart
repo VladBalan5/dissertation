@@ -41,7 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('users')
         .doc(widget.currentUserData.userId)
         .get();
-    String currentUserPublicKey = currentUserSnapshot['publicKey'];
+    currentUserPublicKey = currentUserSnapshot['publicKey'];
 
     String? privateKey = await secureStorage.read(
       key: 'user-${widget.currentUserData.userId}-privateKey',
@@ -51,7 +51,7 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('users')
         .doc(widget.otherUserId)
         .get();
-    String otherUserPublicKey = otherUserSnapshot['publicKey'];
+    otherUserPublicKey = otherUserSnapshot['publicKey'];
 
     setState(() {
       currentUserPrivateKey = privateKey ?? '';
