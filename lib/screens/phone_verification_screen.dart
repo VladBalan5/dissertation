@@ -135,7 +135,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   Future<void> _submitSmsCode() async {
     setState(() {
       _isLoading = true;
-      print("lala");
     });
 
     try {

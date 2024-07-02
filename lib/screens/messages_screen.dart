@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/utils/rsa_helper.dart';
@@ -58,6 +60,9 @@ class _MessageScreenState extends State<MessageScreen> {
       currentUserPublicKey = currentUserPublicKey;
       otherUserPublicKey = otherUserPublicKey;
     });
+    log("currentUserPublicKey: $currentUserPublicKey");
+    log("otherUserPublicKey: $otherUserPublicKey");
+    log("currentUserPrivateKey: $currentUserPrivateKey");
   }
 
   Future<void> _sendMessage() async {

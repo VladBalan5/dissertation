@@ -73,10 +73,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               InternationalPhoneNumberInput(
                 onInputChanged: (PhoneNumber number) {
                   phoneNumber = number;
-                  print("lala $phoneNumber");
                 },
                 onInputValidated: (bool value) {
-                  print("lala2 ${value}");
                 },
                 selectorConfig: SelectorConfig(
                   selectorType: PhoneInputSelectorType.DIALOG,
@@ -191,7 +189,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           TextButton(
             child: Text('I Verified'),
             onPressed: () async {
-              print("lala3");
               await user
                   .reload();
               User? updatedUser = FirebaseAuth
