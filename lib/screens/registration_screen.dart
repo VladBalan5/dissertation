@@ -19,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'RO');
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onInputChanged: (PhoneNumber number) {
                   phoneNumber = number;
                 },
-                onInputValidated: (bool value) {
-                },
+                onInputValidated: (bool value) {},
                 selectorConfig: SelectorConfig(
                   selectorType: PhoneInputSelectorType.DIALOG,
                 ),
@@ -104,6 +104,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 child: Text("Register"),
               ),
+              SizedBox(
+                height: 10,
+              ),
+              _isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Container()
             ],
           ),
         ),
@@ -113,6 +121,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> registerUser(String email, String password, String phoneNumber,
       String userName, BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
     FirebaseAuth _auth = FirebaseAuth.instance;
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -148,6 +159,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       print("Error creating user: $e");
       _showErrorDialog(e.toString(), context);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -182,17 +197,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onPressed: () async {
               await user.sendEmailVerification();
               Navigator.of(ctx).pop();
-              showVerificationEmailSentDialog(
-                  context, user);
+              showVerificationEmailSentDialog(context, user);
             },
           ),
           TextButton(
             child: Text('I Verified'),
             onPressed: () async {
-              await user
-                  .reload();
-              User? updatedUser = FirebaseAuth
-                  .instance.currentUser;
+              await user.reload();
+              User? updatedUser = FirebaseAuth.instance.currentUser;
               if (updatedUser!.emailVerified) {
                 Navigator.of(ctx).pushReplacement(
                   MaterialPageRoute(
