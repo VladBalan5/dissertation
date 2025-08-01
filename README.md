@@ -1,4 +1,4 @@
-# chat_app
+# encrypted_chat_app
 
 This is my disseration project.
 
